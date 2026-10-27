@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Spørsmål{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<div class="title-row">
+  <h1>{{ 'Alle spørsmål' if show_all else 'Ubesvarte spørsmål' }}</h1>
+  {% if show_all %}<a href="{{ url_for('admin.questions') }}">Vis bare ubesvarte</a>
+  {% else %}<a href="{{ url_for('admin.questions', alle=1) }}">Vis alle</a>{% endif %}
+</div>
+{% for q in questions %}
+  {% include "admin/_question.html" %}
+{% else %}
+  <p class="muted">Ingen spørsmål her.</p>
+{% endfor %}
+{% endblock %}

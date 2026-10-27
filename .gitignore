@@ -1,0 +1,16 @@
+# Hemmeligheter
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Lokal data
+instance/
+app/static/uploads/dishes/*
+!app/static/uploads/dishes/.gitkeep
+
+.DS_Store

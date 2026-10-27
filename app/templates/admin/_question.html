@@ -1,0 +1,14 @@
+{% from "_macros.html" import csrf %}
+<div class="qa">
+  <p class="q"><a href="{{ url_for('admin.order_detail', order_id=q.order_id) }}">Bestilling #{{ q.order_id }}</a>
+    <small>{{ q.created_at.strftime('%d.%m.%Y %H:%M') }}</small><br>{{ q.body }}</p>
+  {% if q.answer %}
+    <p class="a"><strong>Svar</strong> <small>{{ q.answered_at.strftime('%d.%m.%Y %H:%M') }}</small><br>{{ q.answer }}</p>
+  {% else %}
+    <form method="post" action="{{ url_for('admin.answer_question', question_id=q.id) }}" class="form">
+      {{ csrf() }}
+      <textarea name="answer" rows="2" required placeholder="Skriv svar til kunden"></textarea>
+      <button type="submit">Send svar</button>
+    </form>
+  {% endif %}
+</div>

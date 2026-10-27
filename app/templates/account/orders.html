@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, payment_badge %}
+{% block title %}Mine bestillinger{% endblock %}
+{% block content %}
+<h1>Mine bestillinger</h1>
+{% if orders %}
+<table class="table">
+  <thead><tr><th>#</th><th>Eventdato</th><th>Gjester</th><th>Status</th><th>Betaling</th><th class="num">Estimert</th></tr></thead>
+  <tbody>
+  {% for o in orders %}
+    <tr>
+      <td><a href="{{ url_for('account.order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+      <td>{{ o.event_date|dato }}</td><td>{{ o.guest_count }}</td>
+      <td>{{ status_badge(o.status) }}</td><td>{{ payment_badge(o.payment_status) }}</td>
+      <td class="num">{{ o.total_nok|nok }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">Du har ingen bestillinger ennå. <a href="{{ url_for('shop.menu') }}">Se menyen</a>.</p>
+{% endif %}
+{% endblock %}

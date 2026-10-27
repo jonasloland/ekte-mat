@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Bilde – {{ dish.name }}{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.dishes') }}">← Alle retter</a></p>
+<h1>Bilde for «{{ dish.name }}»</h1>
+
+{% if preview %}
+  <section class="preview">
+    <h2>Forhåndsvisning</h2>
+    <img src="{{ url_for('admin.pending_image', token=preview.token) }}" alt="Forhåndsvisning">
+    {% if preview.source == 'plassholder' %}
+      <p class="flash flash-info">Ingen bildetjeneste er konfigurert (ANTHROPIC_API_KEY mangler eller feilet), så dette er en plassholder.</p>
+    {% elif preview.source == 'claude' %}
+      <p class="muted">Illustrasjon generert av Claude fra instruksen.</p>
+    {% endif %}
+    {% if preview.prompt %}<p class="muted">Instruks: «{{ preview.prompt }}»</p>{% endif %}
+    <div class="actions">
+      <form method="post" action="{{ url_for('admin.dish_image_save', dish_id=dish.id) }}" class="inline">
+        {{ csrf() }}
+        <input type="hidden" name="token" value="{{ preview.token }}">
+        <input type="hidden" name="prompt" value="{{ preview.prompt or '' }}">
+        <button type="submit">Lagre bildet</button>
+      </form>
+      <a class="button secondary" href="{{ url_for('admin.dish_image', dish_id=dish.id) }}">Forkast og prøv igjen</a>
+    </div>
+  </section>
+{% else %}
+  {% if dish.image_path %}
+    <p>Nåværende bilde:</p>
+    <img class="current-img" src="{{ url_for('static', filename=dish.image_path) }}" alt="{{ dish.name }}">
+  {% endif %}
+  <div class="two-col">
+    <form method="post" action="{{ url_for('admin.dish_image_preview', dish_id=dish.id) }}" enctype="multipart/form-data" class="form card-form">
+      {{ csrf() }}
+      <input type="hidden" name="mode" value="upload">
+      <h2>Last opp bilde</h2>
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Forhåndsvis</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.dish_image_preview', dish_id=dish.id) }}" class="form card-form">
+      {{ csrf() }}
+      <input type="hidden" name="mode" value="generate">
+      <h2>Lag bilde fra instruks</h2>
+      <textarea name="prompt" rows="4" required placeholder="F.eks. Rustikk tallerken med fårikål, poteter og persille, sett ovenfra">{{ dish.image_prompt or (dish.name ~ ': ' ~ dish.description) }}</textarea>
+      <button type="submit">Generer og forhåndsvis</button>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

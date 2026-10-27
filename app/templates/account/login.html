@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Logg inn{% endblock %}
+{% block content %}
+<div class="narrow">
+<h1>Logg inn</h1>
+<form method="post" class="form">
+  {{ csrf() }}
+  <label>E-post <input type="email" name="email" required autofocus></label>
+  <label>Passord <input type="password" name="password" required></label>
+  <button type="submit">Logg inn</button>
+</form>
+<p>Ny kunde? <a href="{{ url_for('account.register', next=request.args.get('next')) }}">Registrer deg</a>.</p>
+</div>
+{% endblock %}

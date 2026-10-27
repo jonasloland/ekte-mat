@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Bestilling #{{ order.id }}{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.orders') }}">← Alle bestillinger</a></p>
+<h1>Bestilling #{{ order.id }} – {{ order.customer_name }}</h1>
+<p class="muted">Innsendt {{ order.created_at.strftime('%d.%m.%Y %H:%M') }} ·
+  Kapasitet {{ order.event_date|dato }}: {{ booked }} av {{ capacity }} gjester booket</p>
+
+<form method="post" action="{{ url_for('admin.order_status', order_id=order.id) }}" class="filters status-form">
+  {{ csrf() }}
+  <label>Ordrestatus
+    <select name="status">
+      {% for s in allowed_statuses %}<option value="{{ s }}" {% if s == order.status %}selected{% endif %}>{{ ORDER_STATUS[s] }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Betalingsstatus
+    <select name="payment_status">
+      {% for key, label in PAYMENT_STATUS.items() %}<option value="{{ key }}" {% if key == order.payment_status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Oppdater status</button>
+</form>
+
+{% include "_order_summary.html" %}
+
+<h2>Spørsmål fra kunden</h2>
+{% for q in questions %}
+  {% include "admin/_question.html" %}
+{% else %}
+  <p class="muted">Ingen spørsmål.</p>
+{% endfor %}
+{% endblock %}

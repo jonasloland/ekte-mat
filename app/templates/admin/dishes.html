@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, allergen_chips %}
+{% block title %}Retter{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<div class="title-row"><h1>Matretter</h1><a class="button" href="{{ url_for('admin.dish_new') }}">+ Ny rett</a></div>
+<table class="table">
+  <thead><tr><th>Bilde</th><th>Navn</th><th>Pris</th><th>Min.</th><th>Anledninger</th><th>Allergener</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for d in dishes %}
+    <tr>
+      <td>{% if d.image_path %}<img class="thumb" src="{{ url_for('static', filename=d.image_path) }}" alt="">{% else %}<span class="muted">–</span>{% endif %}</td>
+      <td><strong>{{ d.name }}</strong></td>
+      <td>{{ d.price_nok|nok }}</td><td>{{ d.min_order }}</td>
+      <td><small>{% for c in d.event_categories %}{{ EVENT_CATEGORIES[c] }}{{ ', ' if not loop.last }}{% endfor %}</small></td>
+      <td><div class="chips">{{ allergen_chips(d.allergens) }}</div></td>
+      <td>{% if d.published %}<span class="badge status-godkjent">Publisert</span>{% else %}<span class="badge">Utkast</span>{% endif %}</td>
+      <td class="row-actions">
+        <a href="{{ url_for('admin.dish_edit', dish_id=d.id) }}">Endre</a>
+        <a href="{{ url_for('admin.dish_image', dish_id=d.id) }}">Bilde</a>
+        <form method="post" action="{{ url_for('admin.dish_delete', dish_id=d.id) }}" class="inline" onsubmit="return confirm('Slette «{{ d.name }}»?')">
+          {{ csrf() }}<button type="submit" class="linklike danger-text">Slett</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="muted">Ingen retter ennå.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

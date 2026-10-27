@@ -1,0 +1,21 @@
+{% macro csrf() %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro status_badge(status) %}<span class="badge status-{{ status }}">{{ ORDER_STATUS[status] }}</span>{% endmacro %}
+
+{% macro payment_badge(status) %}<span class="badge pay-{{ status }}">{{ PAYMENT_STATUS[status] }}</span>{% endmacro %}
+
+{% macro allergen_chips(allergens, strong=false) %}
+  {% for a in allergens %}<span class="chip allergen{% if strong %} strong{% endif %}">{{ ALLERGENS.get(a, a) }}</span>{% endfor %}
+{% endmacro %}
+
+{% macro diet_chips(diets) %}
+  {% for d in diets %}<span class="chip diet">{{ DIETS.get(d, d) }}</span>{% endfor %}
+{% endmacro %}
+
+{% macro checkbox_group(name, options, selected) %}
+  <div class="checks">
+  {% for key, label in options.items() %}
+    <label class="check"><input type="checkbox" name="{{ name }}" value="{{ key }}" {% if key in selected %}checked{% endif %}> {{ label }}</label>
+  {% endfor %}
+  </div>
+{% endmacro %}

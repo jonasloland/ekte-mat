@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Registrer deg{% endblock %}
+{% block content %}
+<div class="narrow">
+<h1>Registrer deg</h1>
+<form method="post" class="form">
+  {{ csrf() }}
+  <label>Navn <input name="name" value="{{ form.get('name', '') }}" required></label>
+  <label>E-post <input type="email" name="email" value="{{ form.get('email', '') }}" required></label>
+  <label>Passord (minst 8 tegn) <input type="password" name="password" minlength="8" required></label>
+  <button type="submit">Opprett konto</button>
+</form>
+<p>Har du konto? <a href="{{ url_for('account.login', next=request.args.get('next')) }}">Logg inn</a>.</p>
+</div>
+{% endblock %}

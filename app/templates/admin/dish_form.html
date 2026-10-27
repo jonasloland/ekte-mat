@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, checkbox_group %}
+{% block title %}{{ 'Endre rett' if dish.id else 'Ny rett' }}{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.dishes') }}">← Alle retter</a></p>
+<h1>{{ 'Endre «' ~ dish.name ~ '»' if dish.id else 'Ny rett' }}</h1>
+<form method="post" class="form wide">
+  {{ csrf() }}
+  <label>Navn <input name="name" value="{{ dish.name }}" required></label>
+  <label>Beskrivelse <textarea name="description" rows="3">{{ dish.description }}</textarea></label>
+  <div class="row">
+    <label>Pris per porsjon (NOK) <input type="number" name="price_nok" min="0" value="{{ dish.price_nok if dish.price_nok >= 0 else '' }}" required></label>
+    <label>Minstebestilling (porsjoner) <input type="number" name="min_order" min="1" value="{{ dish.min_order or 1 }}" required></label>
+  </div>
+  <label>Opprinnelse (valgfritt) <input name="origin" value="{{ dish.origin or '' }}" placeholder="F.eks. Lam fra Valdres"></label>
+  <fieldset><legend>Eventkategorier</legend>{{ checkbox_group('event_categories', EVENT_CATEGORIES, dish.event_categories) }}</fieldset>
+  <fieldset><legend>Allergener</legend>{{ checkbox_group('allergens', ALLERGENS, dish.allergens) }}</fieldset>
+  <fieldset><legend>Dietter</legend>{{ checkbox_group('diets', DIETS, dish.diets) }}</fieldset>
+  <label class="check"><input type="checkbox" name="published" {% if dish.published %}checked{% endif %}> Publisert (synlig for kunder)</label>
+  <div class="actions">
+    <button type="submit">Lagre</button>
+    {% if dish.id %}<a class="button secondary" href="{{ url_for('admin.dish_image', dish_id=dish.id) }}">Bilde</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

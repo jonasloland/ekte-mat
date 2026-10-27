@@ -1,0 +1,25 @@
+{% from "_macros.html" import status_badge, payment_badge, allergen_chips %}
+<dl class="facts">
+  <div><dt>Eventdato</dt><dd>{{ order.event_date|dato }}</dd></div>
+  <div><dt>Gjester</dt><dd>{{ order.guest_count }}</dd></div>
+  <div><dt>Status</dt><dd>{{ status_badge(order.status) }}</dd></div>
+  <div><dt>Betaling</dt><dd>{{ payment_badge(order.payment_status) }}</dd></div>
+  <div class="wide"><dt>Leveringsadresse</dt><dd>{{ order.delivery_address }}</dd></div>
+</dl>
+<h2>Retter</h2>
+<table class="table">
+  <thead><tr><th>Rett</th><th>Antall</th><th>Pris</th><th class="num">Sum</th></tr></thead>
+  <tbody>
+  {% for l in order.lines %}
+    <tr><td>{{ l.dish_name }} <div class="chips">{{ allergen_chips(l.allergens) }}</div></td>
+      <td>{{ l.quantity }}</td><td>{{ l.unit_price_nok|nok }}</td><td class="num">{{ l.subtotal_nok|nok }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><td colspan="3">Estimert totalt</td><td class="num"><strong>{{ order.total_nok|nok }}</strong></td></tr></tfoot>
+</table>
+{% if order.guest_groups %}
+<h2>Gjestegrupper</h2>
+<ul class="groups">
+  {% for g in order.guest_groups %}<li><strong>{{ g.name }}</strong> ({{ g.count }}){% if g.notes %} – {{ g.notes }}{% endif %}</li>{% endfor %}
+</ul>
+{% endif %}

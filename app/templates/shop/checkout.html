@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Bestill{% endblock %}
+{% block content %}
+<h1>Send inn bestilling</h1>
+<div class="two-col">
+<form method="post" class="form">
+  {{ csrf() }}
+  <label>Eventdato
+    <input type="date" name="event_date" min="{{ min_date }}" value="{{ form.get('event_date', '') }}" required>
+  </label>
+  <label>Antall gjester
+    <input type="number" name="guest_count" min="1" value="{{ form.get('guest_count', '') }}" required>
+  </label>
+  <label>Leveringsadresse
+    <textarea name="delivery_address" rows="2" required>{{ form.get('delivery_address', '') }}</textarea>
+  </label>
+
+  <fieldset>
+    <legend>Allergier og dietter per gjestegruppe</legend>
+    <p class="muted">F.eks. «Barn – 8 – 2 med nøtteallergi» eller «Veganere – 5».</p>
+    <div id="groups">
+      {% set names = form.getlist('group_name') or ['', ''] %}
+      {% set counts = form.getlist('group_count') %}
+      {% set notes = form.getlist('group_notes') %}
+      {% for n in names %}
+      <div class="group-row">
+        <input name="group_name" placeholder="Gruppe" value="{{ n }}">
+        <input name="group_count" type="number" min="0" placeholder="Antall" value="{{ counts[loop.index0] if counts|length > loop.index0 else '' }}">
+        <input name="group_notes" placeholder="Allergi-/diettnotat" value="{{ notes[loop.index0] if notes|length > loop.index0 else '' }}">
+      </div>
+      {% endfor %}
+    </div>
+    <button type="button" class="secondary small" id="add-group">+ Legg til gruppe</button>
+  </fieldset>
+
+  <p class="muted">Ingen betaling nå – vi sender faktura etter godkjenning.</p>
+  <button type="submit">Send bestilling</button>
+</form>
+
+<aside class="summary">
+  <h2>Oppsummering</h2>
+  <ul>
+  {% for item in cart.items() %}
+    <li>{{ item.quantity }} × {{ item.dish.name }} <span>{{ item.subtotal_nok|nok }}</span></li>
+  {% endfor %}
+  </ul>
+  <p class="total">Estimert totalt <strong>{{ cart.total_nok|nok }}</strong></p>
+</aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('add-group').addEventListener('click', () => {
+  const rows = document.getElementById('groups');
+  const row = rows.querySelector('.group-row').cloneNode(true);
+  row.querySelectorAll('input').forEach(i => i.value = '');
+  rows.appendChild(row);
+});
+</script>
+{% endblock %}

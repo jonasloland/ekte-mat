@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Bestilling #{{ order.id }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('account.orders') }}">← Mine bestillinger</a></p>
+<h1>Bestilling #{{ order.id }}</h1>
+{% include "_order_summary.html" %}
+
+<form method="post" action="{{ url_for('account.reorder', order_id=order.id) }}" class="inline">
+  {{ csrf() }}<button type="submit" class="secondary">Bestill det samme igjen</button>
+</form>
+
+<h2>Spørsmål om bestillingen</h2>
+{% for q in questions %}
+  <div class="qa">
+    <p class="q"><strong>Du</strong> <small>{{ q.created_at.strftime('%d.%m.%Y %H:%M') }}</small><br>{{ q.body }}</p>
+    {% if q.answer %}
+      <p class="a"><strong>Ekte Mat</strong> <small>{{ q.answered_at.strftime('%d.%m.%Y %H:%M') }}</small><br>{{ q.answer }}</p>
+    {% else %}
+      <p class="muted">Venter på svar.</p>
+    {% endif %}
+  </div>
+{% else %}
+  <p class="muted">Ingen spørsmål ennå.</p>
+{% endfor %}
+<form method="post" action="{{ url_for('account.ask_question', order_id=order.id) }}" class="form">
+  {{ csrf() }}
+  <label>Still et spørsmål <textarea name="body" rows="3" required></textarea></label>
+  <button type="submit">Send spørsmål</button>
+</form>
+{% endblock %}

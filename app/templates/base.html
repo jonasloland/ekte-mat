@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Ekte Mat{% endblock %} · Ekte Mat catering</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="{{ url_for('shop.menu') }}">Ekte <span>Mat</span></a>
+    <nav>
+      {% if current_user and current_user.is_admin %}
+        <a href="{{ url_for('admin.dashboard') }}">Oversikt</a>
+        <a href="{{ url_for('admin.dishes') }}">Retter</a>
+        <a href="{{ url_for('admin.orders') }}">Bestillinger</a>
+        <a href="{{ url_for('admin.questions') }}">Spørsmål</a>
+        <a href="{{ url_for('admin.kitchen') }}">Kjøkken</a>
+        <a href="{{ url_for('shop.menu') }}">Kundeside</a>
+      {% else %}
+        <a href="{{ url_for('shop.menu') }}">Meny</a>
+        <a href="{{ url_for('shop.cart') }}">Handlekurv{% if cart_count %} <span class="pill">{{ cart_count }}</span>{% endif %}</a>
+        {% if current_user %}<a href="{{ url_for('account.orders') }}">Mine bestillinger</a>{% endif %}
+      {% endif %}
+      {% if current_user %}
+        <form method="post" action="{{ url_for('account.logout') }}" class="inline">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button class="linklike" type="submit">Logg ut ({{ current_user.name.split()[0] }})</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('account.login') }}">Logg inn</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="wrap footer">Ekte Mat catering · Laget i Norge</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

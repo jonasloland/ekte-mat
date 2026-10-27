@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Admin{% endblock %}
+{% block body_class %}admin{% endblock %}
+{% block content %}
+<h1>Oversikt</h1>
+<div class="stats">
+  <a class="stat" href="{{ url_for('admin.orders', status='innsendt') }}"><strong>{{ new_orders|length }}</strong> nye bestillinger</a>
+  <a class="stat" href="{{ url_for('admin.questions') }}"><strong>{{ open_questions|length }}</strong> ubesvarte spørsmål</a>
+  <a class="stat" href="{{ url_for('admin.dishes') }}"><strong>{{ dish_count }}</strong> retter</a>
+</div>
+<h2>Venter på godkjenning</h2>
+{% if new_orders %}
+<table class="table">
+  <thead><tr><th>#</th><th>Kunde</th><th>Eventdato</th><th>Gjester</th><th class="num">Estimert</th></tr></thead>
+  <tbody>
+  {% for o in new_orders %}
+    <tr><td><a href="{{ url_for('admin.order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+      <td>{{ o.customer_name }}</td><td>{{ o.event_date|dato }}</td><td>{{ o.guest_count }}</td><td class="num">{{ o.total_nok|nok }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="muted">Ingen nye bestillinger.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, allergen_chips %}
+{% block title %}Handlekurv{% endblock %}
+{% block content %}
+<h1>Handlekurv</h1>
+{% set items = cart.items() %}
+{% if items %}
+<table class="table">
+  <thead><tr><th>Rett</th><th>Pris</th><th>Antall</th><th class="num">Sum</th><th></th></tr></thead>
+  <tbody>
+  {% for item in items %}
+    <tr>
+      <td><strong>{{ item.dish.name }}</strong><br><small>Min. {{ item.dish.min_order }} porsjoner</small>
+        <div class="chips">{{ allergen_chips(item.dish.allergens) }}</div></td>
+      <td>{{ item.dish.price_nok|nok }}</td>
+      <td>
+        <form method="post" action="{{ url_for('shop.cart_update', dish_id=item.dish.id) }}" class="qty-form">
+          {{ csrf() }}
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="0">
+          <button type="submit" class="secondary">Oppdater</button>
+        </form>
+      </td>
+      <td class="num">{{ item.subtotal_nok|nok }}</td>
+      <td>
+        <form method="post" action="{{ url_for('shop.cart_remove', dish_id=item.dish.id) }}">
+          {{ csrf() }}<button type="submit" class="danger small">Fjern</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><td colspan="3">Estimert totalpris</td><td class="num"><strong>{{ cart.total_nok|nok }}</strong></td><td></td></tr></tfoot>
+</table>
+<p class="muted">Endelig pris bekreftes av Ekte Mat når bestillingen er godkjent.</p>
+<div class="actions">
+  <a class="button secondary" href="{{ url_for('shop.menu') }}">Fortsett å handle</a>
+  <a class="button" href="{{ url_for('shop.checkout') }}">Gå til bestilling</a>
+</div>
+{% else %}
+<p class="empty">Handlekurven er tom. <a href="{{ url_for('shop.menu') }}">Se menyen</a>.</p>
+{% endif %}
+{% endblock %}

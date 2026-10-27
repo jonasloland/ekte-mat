@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, allergen_chips, diet_chips %}
+{% block title %}Meny{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Ekte mat til ditt arrangement</h1>
+  <p>Velg retter etter anledning. Prisene er per porsjon – du ser estimert totalpris i handlekurven.</p>
+</section>
+
+<nav class="tabs" aria-label="Anledning">
+  <a href="{{ url_for('shop.menu') }}" class="{% if not selected %}active{% endif %}">Alle</a>
+  {% for key, label in EVENT_CATEGORIES.items() %}
+    <a href="{{ url_for('shop.menu', event=key) }}" class="{% if selected == key %}active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% for key, label, dishes in groups %}
+  <section class="event-group" id="{{ key }}">
+    <h2>{{ label }}</h2>
+    <div class="cards">
+      {% for dish in dishes %}
+        <article class="card">
+          {% if dish.image_path %}
+            <img src="{{ url_for('static', filename=dish.image_path) }}" alt="{{ dish.name }}" loading="lazy">
+          {% else %}
+            <div class="img-missing">Bilde kommer</div>
+          {% endif %}
+          <div class="card-body">
+            <h3>{{ dish.name }}</h3>
+            <p class="desc">{{ dish.description }}</p>
+            {% if dish.origin %}<p class="origin">Opprinnelse: {{ dish.origin }}</p>{% endif %}
+            <div class="chips">{{ allergen_chips(dish.allergens) }}{{ diet_chips(dish.diets) }}</div>
+            <div class="price-row">
+              <span class="price">{{ dish.price_nok|nok }} <small>/ porsjon</small></span>
+              <span class="min">Min. {{ dish.min_order }} porsjoner</span>
+            </div>
+            <form method="post" action="{{ url_for('shop.cart_add', dish_id=dish.id) }}" class="add-form">
+              {{ csrf() }}
+              <input type="number" name="quantity" value="{{ dish.min_order }}" min="1" aria-label="Antall porsjoner">
+              <button type="submit">Legg i kurv</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% else %}
+  <p class="empty">Ingen retter er publisert for denne anledningen ennå.</p>
+{% endfor %}
+{% endblock %}

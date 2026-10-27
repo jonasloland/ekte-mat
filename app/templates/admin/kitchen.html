@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, allergen_chips %}
+{% block title %}Kjøkken{% endblock %}
+{% block body_class %}admin kitchen{% endblock %}
+{% block content %}
+<h1>Kjøkkenvisning – neste 14 dager</h1>
+<p class="muted">Godkjente ordrer og ordrer under tilberedning. Allergener er uthevet.</p>
+{% for o in orders %}
+  <article class="kitchen-card">
+    <header>
+      <h2>{{ o.event_date|dato }} · #{{ o.id }} · {{ o.guest_count }} gjester</h2>
+      {{ status_badge(o.status) }}
+    </header>
+    {% if o.all_allergens %}
+      <div class="allergy-alert">Allergener i ordren: {{ allergen_chips(o.all_allergens|sort, strong=true) }}</div>
+    {% endif %}
+    <ul>
+      {% for l in o.lines %}<li><strong>{{ l.quantity }} ×</strong> {{ l.dish_name }} {{ allergen_chips(l.allergens, strong=true) }}</li>{% endfor %}
+    </ul>
+    {% if o.guest_groups %}
+      <h3>Gjestegrupper</h3>
+      <ul class="groups">
+        {% for g in o.guest_groups %}<li><strong>{{ g.name }}</strong> ({{ g.count }}){% if g.notes %} – <mark>{{ g.notes }}</mark>{% endif %}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    <p class="muted">Leveres til: {{ o.delivery_address }}</p>
+  </article>
+{% else %}
+  <p class="empty">Ingen ordrer å lage de neste 14 dagene.</p>
+{% endfor %}
+{% endblock %}
