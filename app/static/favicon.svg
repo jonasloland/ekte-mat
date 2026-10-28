@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tallerken med skje – Ekte Mat -->
+  <circle cx="30" cy="34" r="26" fill="#faf7f2" stroke="#2f6b3d" stroke-width="4"/>
+  <circle cx="30" cy="34" r="16" fill="none" stroke="#2f6b3d" stroke-width="2"/>
+  <ellipse cx="50" cy="12" rx="7" ry="9" fill="#c8553d" transform="rotate(35 50 12)"/>
+  <path d="M46 19 L34 40" stroke="#c8553d" stroke-width="5" stroke-linecap="round"/>
+</svg>
