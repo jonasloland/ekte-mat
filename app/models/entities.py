@@ -179,6 +179,11 @@ class Order:
     @property
     def all_allergens(self) -> set[str]:
         return {a for line in self.lines for a in line.allergens}
+    
+    @property
+    def can_customer_cancel(self) -> bool:
+        """Kunden kan selv avbestille så lenge ordren ikke er behandlet."""
+        return self.status == OrderStatus.SUBMITTED
 
     def validate(self, today: Optional[date] = None) -> list[str]:
         today = today or date.today()

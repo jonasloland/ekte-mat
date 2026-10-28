@@ -133,6 +133,17 @@ def change_order_status(
     return order
 
 
+def cancel_order_by_customer(repos: Repositories, order_id: int, customer_id: int) -> Order:
+    order = repos.orders.get(order_id)
+    if order is None or order.customer_id != customer_id:
+        raise ValidationError(["Bestillingen finnes ikke."])
+    if not order.can_customer_cancel:
+        raise ValidationError(["Bare innsendte bestillinger kan avbestilles."])
+    repos.orders.update_status(order.id, OrderStatus.CANCELLED, order.payment_status)
+    order.status = OrderStatus.CANCELLED
+    return order
+
+
 def copy_order_to_cart(repos: Repositories, order: Order, cart: Cart) -> list[str]:
     """Legger retter fra en tidligere ordre i kurven (bedriftskunder som bestiller
     det samme hver uke). Returnerer navn på retter som ikke lenger kan bestilles."""

@@ -14,6 +14,7 @@ from app.models.entities import Question
 from app.models.services import (
     ValidationError,
     authenticate,
+    cancel_order_by_customer,
     copy_order_to_cart,
     register_customer,
 )
@@ -120,3 +121,16 @@ def reorder(order_id):
         flash("Ikke lenger på menyen: " + ", ".join(skipped), "info")
     flash("Rettene fra bestillingen er lagt i handlekurven.", "success")
     return redirect(url_for("shop.cart"))
+
+
+@bp.post("/bestillinger/<int:order_id>/avbestill")
+@login_required
+def cancel_order(order_id):
+    order = _own_order(order_id)
+    try:
+        cancel_order_by_customer(repos(), order.id, get_current_user().id)
+        flash("Bestillingen er avbestilt.", "success")
+    except ValidationError as e:
+        for err in e.errors:
+            flash(err, "error")
+    return redirect(url_for("account.order_detail", order_id=order.id))
