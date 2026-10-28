@@ -3,12 +3,13 @@ i stedet for å sette sammen domeneobjekter selv."""
 from __future__ import annotations
 
 from datetime import date
-from typing import Optional
+from typing import Iterable, Optional
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.models.cart import Cart
 from app.models.entities import (
+    Dish,
     GuestGroup,
     Order,
     OrderLine,
@@ -54,6 +55,24 @@ def authenticate(repos: Repositories, email: str, password: str) -> Optional[Use
     if user and check_password_hash(user.password_hash, password):
         return user
     return None
+
+
+# --- Meny --------------------------------------------------------------------
+
+
+def filter_dishes(
+    dishes: Iterable[Dish],
+    exclude_allergens: Iterable[str] = (),
+    require_diets: Iterable[str] = (),
+) -> list[Dish]:
+    """Skjuler retter med noen av allergenene og beholder kun retter som
+    oppfyller alle diettene. Tomme valg gir ingen filtrering."""
+    excluded = set(exclude_allergens)
+    required = set(require_diets)
+    return [
+        d for d in dishes
+        if not excluded & set(d.allergens) and required <= set(d.diets)
+    ]
 
 
 # --- Bestilling --------------------------------------------------------------

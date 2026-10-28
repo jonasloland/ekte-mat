@@ -2,6 +2,7 @@
 import io
 from datetime import date, timedelta
 
+from app.models.entities import Dish
 from tests.conftest import login
 
 FUTURE = (date.today() + timedelta(days=10)).isoformat()
@@ -10,6 +11,17 @@ FUTURE = (date.today() + timedelta(days=10)).isoformat()
 def test_menu_shows_published_dishes(client, dish):
     html = client.get("/").get_data(as_text=True)
     assert "Fårikål" in html and "Konfirmasjon" in html and "Selleri" in html
+
+
+def test_menu_filter_hides_dishes_with_allergen(client, repos, dish):
+    repos.dishes.add(
+        Dish(None, "Lefse", "Søt", 40, min_order=10, event_categories=["konfirmasjon"],
+             allergens=["gluten"], published=True)
+    )
+    html = client.get("/?uten=gluten").get_data(as_text=True)
+    assert "Fårikål" in html and "Lefse" not in html
+    assert "Lefse" not in client.get("/?kun=vegan").get_data(as_text=True)
+    assert "Lefse" in client.get("/?uten=ukjent").get_data(as_text=True)
 
 
 def test_cart_rejects_under_min_order(client, dish):

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import csrf, allergen_chips, diet_chips %}
+{% from "_macros.html" import csrf, allergen_chips, diet_chips, checkbox_group %}
 {% block title %}Meny{% endblock %}
 {% block content %}
 <section class="hero">
@@ -8,11 +8,25 @@
 </section>
 
 <nav class="tabs" aria-label="Anledning">
-  <a href="{{ url_for('shop.menu') }}" class="{% if not selected %}active{% endif %}">Alle</a>
+  <a href="{{ url_for('shop.menu', uten=without, kun=only) }}" class="{% if not selected %}active{% endif %}">Alle</a>
   {% for key, label in EVENT_CATEGORIES.items() %}
-    <a href="{{ url_for('shop.menu', event=key) }}" class="{% if selected == key %}active{% endif %}">{{ label }}</a>
+    <a href="{{ url_for('shop.menu', event=key, uten=without, kun=only) }}" class="{% if selected == key %}active{% endif %}">{{ label }}</a>
   {% endfor %}
 </nav>
+
+<form method="get" action="{{ url_for('shop.menu') }}" class="menu-filter">
+  {% if selected %}<input type="hidden" name="event" value="{{ selected }}">{% endif %}
+  <fieldset>
+    <legend>Skjul retter med …</legend>
+    {{ checkbox_group('uten', ALLERGENS, without) }}
+  </fieldset>
+  <fieldset>
+    <legend>Vis kun …</legend>
+    {{ checkbox_group('kun', DIETS, only) }}
+  </fieldset>
+  <button type="submit">Bruk filter</button>
+  {% if without or only %}<a href="{{ url_for('shop.menu', event=selected) }}">Nullstill</a>{% endif %}
+</form>
 
 {% for key, label, dishes in groups %}
   <section class="event-group" id="{{ key }}">
@@ -45,6 +59,10 @@
     </div>
   </section>
 {% else %}
-  <p class="empty">Ingen retter er publisert for denne anledningen ennå.</p>
+  {% if without or only %}
+    <p class="empty">Ingen retter passer filteret ditt.</p>
+  {% else %}
+    <p class="empty">Ingen retter er publisert for denne anledningen ennå.</p>
+  {% endif %}
 {% endfor %}
 {% endblock %}

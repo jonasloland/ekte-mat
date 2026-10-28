@@ -11,8 +11,8 @@ from app.controllers.helpers import (
     save_cart,
 )
 from app.models.cart import CartError
-from app.models.entities import EVENT_CATEGORIES, GuestGroup
-from app.models.services import ValidationError, place_order
+from app.models.entities import ALLERGENS, DIETS, EVENT_CATEGORIES, GuestGroup
+from app.models.services import ValidationError, filter_dishes, place_order
 
 bp = Blueprint("shop", __name__)
 
@@ -29,7 +29,9 @@ def menu():
     selected = request.args.get("event")
     if selected not in EVENT_CATEGORIES:
         selected = None
-    dishes = repos().dishes.list_published()
+    without = [a for a in request.args.getlist("uten") if a in ALLERGENS]
+    only = [d for d in request.args.getlist("kun") if d in DIETS]
+    dishes = filter_dishes(repos().dishes.list_published(), without, only)
     groups = []
     for key, label in EVENT_CATEGORIES.items():
         if selected and key != selected:
@@ -37,7 +39,9 @@ def menu():
         in_group = [d for d in dishes if key in d.event_categories]
         if in_group:
             groups.append((key, label, in_group))
-    return render_template("shop/menu.html", groups=groups, selected=selected)
+    return render_template(
+        "shop/menu.html", groups=groups, selected=selected, without=without, only=only
+    )
 
 
 @bp.get("/handlekurv")
