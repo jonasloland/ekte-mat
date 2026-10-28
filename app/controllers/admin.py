@@ -4,6 +4,7 @@ from datetime import date, timedelta
 
 from flask import (
     Blueprint,
+    Response,
     abort,
     current_app,
     flash,
@@ -16,6 +17,7 @@ from flask import (
 
 from app.controllers.helpers import admin_required, get_current_user, repos
 from app.models.entities import ALLERGENS, DIETS, EVENT_CATEGORIES, Dish, OrderStatus
+from app.models.export import orders_to_csv
 from app.models.images import ImageError
 from app.models.services import ValidationError, change_order_status
 
@@ -183,19 +185,38 @@ def dish_image_save(dish_id):
 # --- A3 Bestillinger ---------------------------------------------------------
 
 
-@bp.get("/bestillinger")
-def orders():
+def _order_filters():
+    """Leser status/fra/til fra querystring. Deles av listevisning og CSV-eksport."""
     status = request.args.get("status") or None
     if status not in OrderStatus.LABELS:
         status = None
-    date_from = _parse_date(request.args.get("fra"))
-    date_to = _parse_date(request.args.get("til"))
+    return status, _parse_date(request.args.get("fra")), _parse_date(request.args.get("til"))
+
+
+@bp.get("/bestillinger")
+def orders():
+    status, date_from, date_to = _order_filters()
     return render_template(
         "admin/orders.html",
         orders=repos().orders.list_filtered(status, date_from, date_to),
         status=status,
         date_from=date_from,
         date_to=date_to,
+    )
+
+
+@bp.get("/bestillinger.csv")
+def orders_csv():
+    status, date_from, date_to = _order_filters()
+    body = orders_to_csv(repos().orders.list_filtered(status, date_from, date_to))
+    filename = f"bestillinger-{date.today().isoformat()}.csv"
+    return Response(
+        body.encode("utf-8"),
+        mimetype="text/csv",
+        headers={
+            "Content-Type": "text/csv; charset=utf-8",
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
     )
 
 

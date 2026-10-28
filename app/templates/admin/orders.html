@@ -15,6 +15,7 @@
   <label>til <input type="date" name="til" value="{{ date_to.isoformat() if date_to else '' }}"></label>
   <button type="submit">Filtrer</button>
   <a href="{{ url_for('admin.orders') }}">Nullstill</a>
+  <a class="button" href="{{ url_for('admin.orders_csv', **request.args) }}" download>Last ned CSV</a>
 </form>
 <table class="table">
   <thead><tr><th>#</th><th>Kunde</th><th>Eventdato</th><th>Gjester</th><th>Status</th><th>Betaling</th><th class="num">Estimert</th></tr></thead>
