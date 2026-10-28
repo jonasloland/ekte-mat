@@ -64,6 +64,8 @@ legend { font-weight: 600; padding: 0 6px; }
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 .tabs a { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); text-decoration: none; color: var(--text); background: var(--surface); }
 .tabs a.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+.menu-filter { display: grid; gap: 10px; margin: 0 0 18px; }
+.menu-filter > button, .menu-filter > a { justify-self: start; }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }

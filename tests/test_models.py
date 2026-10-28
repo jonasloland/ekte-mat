@@ -10,6 +10,7 @@ from app.models.services import (
     ValidationError,
     authenticate,
     change_order_status,
+    filter_dishes,
     place_order,
     register_customer,
 )
@@ -123,3 +124,17 @@ def test_sanitize_svg_strips_scripts():
     dirty = '<svg onload="alert(1)"><script>alert(2)</script><a href="javascript:x">y</a></svg>'
     clean = sanitize_svg(dirty)
     assert "script" not in clean and "onload" not in clean and "javascript" not in clean
+
+
+def test_filter_dishes_on_allergens_and_diets():
+    brod = Dish(1, "Brød", "", 50, allergens=["gluten"], diets=["vegan"])
+    ost = Dish(2, "Ost", "", 50, allergens=["melk"], diets=["vegetar", "glutenfri"])
+    salat = Dish(3, "Salat", "", 50, diets=["vegan", "glutenfri"])
+    dishes = [brod, ost, salat]
+
+    assert filter_dishes(dishes) == dishes
+    assert filter_dishes(dishes, exclude_allergens=["gluten"]) == [ost, salat]
+    assert filter_dishes(dishes, exclude_allergens=["gluten", "melk"]) == [salat]
+    assert filter_dishes(dishes, require_diets=["vegan"]) == [brod, salat]
+    assert filter_dishes(dishes, require_diets=["vegan", "glutenfri"]) == [salat]
+    assert filter_dishes(dishes, ["melk"], ["glutenfri"]) == [salat]
