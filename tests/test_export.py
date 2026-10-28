@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import pytest
 
 from app.models.entities import Order, OrderLine, OrderStatus, PaymentStatus
-from app.models.export import BOM, CSV_DELIMITER, CSV_HEADER, orders_to_csv
+from app.models.export import BOM, CSV_DELIMITER, CSV_HEADER, orders_to_csv, safe_cell
 from tests.conftest import login
 
 DAY = date.today() + timedelta(days=5)
@@ -36,6 +36,20 @@ def test_orders_to_csv_header_values_and_norwegian_chars():
     assert rows[0] == CSV_HEADER
     assert rows[1] == ["7", "Bjørn Ærø Ås", "2026-12-24", "12", "3000",
                        OrderStatus.LABELS[order.status], PaymentStatus.LABELS[order.payment_status]]
+
+
+@pytest.mark.parametrize("name", ["=HYPERLINK(\"http://x\")", "+1+1", "-2+3", "@SUM(A1)", "\t=1"])
+def test_orders_to_csv_escapes_formulas_in_customer_name(name):
+    order = Order(None, 1, date(2026, 12, 24), 12, "X",
+                  [OrderLine(1, "Fårikål", 250, 12)], customer_name=name)
+    order.id = 1
+    assert _rows(orders_to_csv([order]))[1][1] == "'" + name
+
+
+def test_safe_cell_leaves_normal_text_alone():
+    assert safe_cell("Kari Nordmann") == "Kari Nordmann"
+    assert safe_cell("Ola-Bedrift AS") == "Ola-Bedrift AS"
+    assert safe_cell("") == ""
 
 
 def test_orders_to_csv_empty_has_only_header():

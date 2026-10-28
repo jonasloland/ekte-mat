@@ -10,6 +10,14 @@ from app.models.entities import Order, OrderStatus, PaymentStatus
 CSV_HEADER = ["id", "kunde", "eventdato", "gjester", "total", "status", "betalingsstatus"]
 CSV_DELIMITER = ";"  # norsk Excel bruker komma som desimaltegn og forventer semikolon
 BOM = "﻿"  # gjør at Excel leser filen som UTF-8, så æøå vises riktig
+# Celler som starter med disse tegnene tolkes som formler av Excel/Numbers
+FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def safe_cell(value: str) -> str:
+    """Hindrer CSV-/formelinjeksjon: kundestyrt tekst som ser ut som en formel
+    får en apostrof foran, så regnearket viser den som vanlig tekst."""
+    return "'" + value if value.startswith(FORMULA_PREFIXES) else value
 
 
 def orders_to_csv(orders: Iterable[Order]) -> str:
@@ -20,7 +28,7 @@ def orders_to_csv(orders: Iterable[Order]) -> str:
     for o in orders:
         writer.writerow([
             o.id,
-            o.customer_name or "",
+            safe_cell(o.customer_name or ""),
             o.event_date.isoformat(),
             o.guest_count,
             o.total_nok,
