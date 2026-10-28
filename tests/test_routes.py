@@ -121,3 +121,9 @@ def test_base_has_favicon_and_footer(client):
 def test_csrf_blocks_post_without_token(app, client, dish):
     app.config["TESTING_DISABLE_CSRF"] = False
     assert client.post(f"/handlekurv/legg-til/{dish.id}", data={"quantity": 10}).status_code == 400
+
+
+def test_kitchen_has_print_button(client, admin):
+    login(client, "admin@test.no", "admin12345")
+    html = client.get("/admin/kjokken").get_data(as_text=True)
+    assert "Skriv ut" in html and "window.print()" in html
