@@ -1,4 +1,4 @@
-# Plan 0002 – Favicon, bunntekst, utskrift av kjøkkenvisning og interessenter
+# Plan 0005 – Favicon, bunntekst, utskrift av kjøkkenvisning og interessenter
 
 **Status:** Godkjent
 **Ansvarlig:** Trine Kulseth
