@@ -29,6 +29,12 @@ python run.py
 ```
 Åpne http://localhost:5050 (kundeside) eller logg inn som admin for `/admin`.
 
+Er port 5050 opptatt (`Address already in use`), velg en annen port:
+```bash
+PORT=5060 python run.py            # Windows (PowerShell): $env:PORT=5060; python run.py
+```
+og åpne http://localhost:5060.
+
 ## Teste
 ```bash
 python -m pytest -q
@@ -53,6 +59,18 @@ python -m pytest -q
 - **Kapasitetssjekk** (`DAILY_GUEST_CAPACITY`) – driftsleder, så kjøkkenet ikke overbookes en dag.
 - **«Bestill det samme igjen»** – bedriftskunder som bestiller samme lunsj hver uke.
 - **Matens opprinnelse på kortene** – kunder som bryr seg om kortreist mat.
+- **Allergen- og diettfilter i menyen** (`/?uten=gluten&kun=vegan`) – kunder med allergier, som raskt
+  vil skjule retter de ikke tåler. Logikken ligger i `services.filter_dishes` (plan 0002).
+- **Kunden kan avbestille en innsendt bestilling** (knapp på `/konto/bestillinger/<id>`) – kunder
+  som får endrede planer og vil slippe å ringe. Bare egne ordrer med status «innsendt» (plan 0003).
+- **CSV-eksport av bestillinger** (`/admin/bestillinger.csv`, følger valgt filter) – daglig leder og
+  regnskap, som fakturerer i Excel. Semikolon og BOM for norsk Excel, og kundenavn escapes mot
+  formelinjeksjon (plan 0004).
+- **Favicon, bunntekst med kontaktinfo og utskriftsvennlig kjøkkenvisning** («Skriv ut» på
+  `/admin/kjokken`) – kunder som vil kontakte Ekte Mat, og kokker som henger ordrene opp på
+  kjøkkenet (plan 0005).
+
+Se [docs/interessenter.md](docs/interessenter.md) for en full oversikt over interessentene og funksjonene deres.
 
 ### Bildegenerering
 Med `ANTHROPIC_API_KEY` i `.env` lager admin en SVG-illustrasjon fra en tekstinstruks via Claude
