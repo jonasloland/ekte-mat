@@ -13,12 +13,15 @@ følge med på bestillingen og stille spørsmål. Bedriftskunder bestiller ofte 
 | Funksjon | Rute | Kode |
 |---|---|---|
 | Meny gruppert etter eventtype, med allergener, dietter og matens opprinnelse | `GET /` | `shop.menu` |
+| Filter i menyen: skjul retter med valgte allergener og vis kun valgte dietter (plan 0002) | `GET /?uten=<allergen>&kun=<diett>` | `shop.menu`, `services.filter_dishes` |
 | Handlekurv med minstebestilling per rett | `GET /handlekurv`, `POST /handlekurv/legg-til/<id>`, `/oppdater/<id>`, `/fjern/<id>` | `shop.cart*`, `models/cart.py` |
 | Bestilling med eventdato, gjesteantall, adresse og gjestegrupper med allergier/notater (kapasitetssjekk per dag) | `GET/POST /bestill` | `shop.checkout`, `services.place_order` |
 | Registrering, innlogging og utlogging | `/konto/registrer`, `/konto/logg-inn`, `POST /konto/logg-ut` | `account.*` |
 | Mine bestillinger med status (kun egne – 404 ellers) | `GET /konto/bestillinger`, `GET /konto/bestillinger/<id>` | `account.orders`, `account.order_detail` |
 | Spørsmål om en bestilling | `POST /konto/bestillinger/<id>/sporsmal` | `account.ask_question` |
 | «Bestill det samme igjen» (særlig for bedriftskunder) | `POST /konto/bestillinger/<id>/bestill-igjen` | `account.reorder` |
+| Avbestille egen bestilling så lenge den har status «innsendt» (plan 0003) | `POST /konto/bestillinger/<id>/avbestill` | `account.cancel_order`, `services.cancel_order_by_customer` |
+| Kontaktinfo (telefon, e-post, åpningstider) i bunnteksten og favicon i fanen (plan 0005) | alle sider | `base.html`, `static/favicon.svg` |
 
 ## Kokk
 **Behov:** Vite hva som skal lages de nærmeste dagene, og se allergier så tydelig at det ikke blir feil –
@@ -39,6 +42,7 @@ unngå at kjøkkenet blir overbooket.
 | Bestillingsliste med filter på status og dato | `GET /admin/bestillinger?status=&fra=&til=` | `admin.orders` |
 | Ordredetaljer | `GET /admin/bestillinger/<id>` | `admin.order_detail` |
 | Endre ordrestatus og betalingsstatus | `POST /admin/bestillinger/<id>/status` | `admin.order_status` |
+| Eksport av (filtrerte) bestillinger til CSV for regnskap og fakturering i Excel; kundenavn escapes mot formelinjeksjon (plan 0004) | `GET /admin/bestillinger.csv?status=&fra=&til=` | `admin.orders_csv`, `models/export.py` |
 | Kapasitetsgrense for gjester per dag | konfig `DAILY_GUEST_CAPACITY` | `config.py`, `services.place_order` |
 
 ## Admin
