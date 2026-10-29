@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Ekte Mat{% endblock %} · Ekte Mat catering</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -40,7 +41,14 @@
   {% endwith %}
   {% block content %}{% endblock %}
 </main>
-<footer class="wrap footer">Ekte Mat catering · Laget i Norge</footer>
+<footer class="wrap footer">
+  <address class="footer-contact">
+    <span>Ekte Mat catering · Laget i Norge</span>
+    <span>Tlf. 55 00 00 00</span>
+    <span>E-post: <a href="mailto:post@ektemat.example">post@ektemat.example</a></span>
+    <span>Åpningstider: man–fre 08–16</span>
+  </address>
+</footer>
 {% block scripts %}{% endblock %}
 </body>
 </html>

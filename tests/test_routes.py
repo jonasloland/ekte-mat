@@ -124,6 +124,18 @@ def test_admin_status_and_answer(client, repos, admin, customer, dish):
     assert client.get("/admin/kjokken").status_code == 200
 
 
+def test_base_has_favicon_and_footer(client):
+    html = client.get("/").get_data(as_text=True)
+    assert 'rel="icon"' in html and "/static/favicon.svg" in html
+    assert "55 00 00 00" in html and "post@ektemat.example" in html and "man–fre 08–16" in html
+
+
 def test_csrf_blocks_post_without_token(app, client, dish):
     app.config["TESTING_DISABLE_CSRF"] = False
     assert client.post(f"/handlekurv/legg-til/{dish.id}", data={"quantity": 10}).status_code == 400
+
+
+def test_kitchen_has_print_button(client, admin):
+    login(client, "admin@test.no", "admin12345")
+    html = client.get("/admin/kjokken").get_data(as_text=True)
+    assert "Skriv ut" in html and "window.print()" in html
