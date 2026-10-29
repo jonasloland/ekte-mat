@@ -31,9 +31,9 @@ python run.py
 
 Er port 5050 opptatt (`Address already in use`), velg en annen port:
 ```bash
-PORT=5060 python run.py            # Windows (PowerShell): $env:PORT=5060; python run.py
+PORT=5055 python run.py            # Windows (PowerShell): $env:PORT=5055; python run.py
 ```
-og åpne http://localhost:5060.
+og åpne http://localhost:5055. Unngå port 5060 og 6000 – Chrome blokkerer dem (`ERR_UNSAFE_PORT`).
 
 ## Teste
 ```bash
