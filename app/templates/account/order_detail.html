@@ -10,6 +10,13 @@
   {{ csrf() }}<button type="submit" class="secondary">Bestill det samme igjen</button>
 </form>
 
+{% if order.can_customer_cancel %}
+<form method="post" action="{{ url_for('account.cancel_order', order_id=order.id) }}" class="inline"
+      onsubmit="return confirm('Er du sikker på at du vil avbestille?');">
+  {{ csrf() }}<button type="submit" class="secondary">Avbestill</button>
+</form>
+{% endif %}
+
 <h2>Spørsmål om bestillingen</h2>
 {% for q in questions %}
   <div class="qa">
