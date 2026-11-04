@@ -1,7 +1,7 @@
 # Ekte Mat – bestillingssystem for catering
 
-Flask-app (MVC) med kundeside og adminpanel. Lagring i SQLite bak repository-grensesnitt,
-slik at den kan byttes til Neo4j uten å endre controllere eller views.
+Flask-app (MVC) med kundeside og adminpanel. Lagringen ligger bak repository-grensesnitt og kan
+kjøre på **SQLite** (standard) eller **Neo4j** – controllere og views er de samme.
 
 ## Installere
 ```bash
@@ -39,6 +39,40 @@ og åpne http://localhost:5055. Unngå port 5060 og 6000 – Chrome blokkerer de
 ```bash
 python -m pytest -q
 ```
+
+## Kjøre med Neo4j
+Krever [Docker Desktop](https://www.docker.com/products/docker-desktop/) (må være startet).
+
+1. Start Neo4j (første gang lastes bildet ned):
+   ```bash
+   docker run -d --name ektemat-neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/ektemat-passord neo4j:5.26
+   ```
+   Senere holder det med `docker start ektemat-neo4j`.
+2. Sett `STORAGE_BACKEND=neo4j` i `.env` (passord og adresse står allerede i `.env.example`).
+3. Seed og kjør som vanlig:
+   ```bash
+   python seed.py
+   python run.py
+   ```
+4. Se grafen i Neo4j Browser på http://localhost:7474 (bruker `neo4j`, passord `ektemat-passord`),
+   f.eks. med `MATCH (n) RETURN n LIMIT 100`.
+
+Teste mot Neo4j (kjører hele testsuiten og kontrakttestene mot Neo4j – **tømmer databasen**, så kjør
+`python seed.py` etterpå):
+```bash
+TEST_STORAGE_BACKEND=neo4j python -m pytest -q
+```
+
+### Grafmodell
+```
+(User)-[:PLACED]->(Order)-[:HAS_LINE]->(OrderLine)-[:OF_DISH]->(Dish)
+(Order)-[:HAS_GROUP]->(GuestGroup)
+(Dish)-[:CONTAINS]->(Allergen)  (Dish)-[:SUITS]->(Diet)  (Dish)-[:SERVED_AT]->(EventCategory)
+(User)-[:ASKED]->(Question)-[:ABOUT]->(Order)  (User)-[:ANSWERED]->(Question)
+```
+Ordrelinjene har en kopi av navn, pris og allergener, så gamle ordrer ikke endres når en rett endres
+eller slettes. Heltalls-id-er lages med en `(:Counter)`-node per type. Se
+[docs/plans/0006-neo4j.md](docs/plans/0006-neo4j.md).
 
 ## Funksjoner
 
@@ -80,5 +114,6 @@ virker uten nøkkel. SVG fra tjenesten og opplastede SVG-er renses for script f�
 ## Arkitektur
 Se [CLAUDE.md](CLAUDE.md) for mappestruktur og regler, og [docs/plans/](docs/plans/) for planer.
 
-**Bytte til Neo4j (oblig 5):** lag `app/models/repositories/neo4j.py` som implementerer klassene i
-`base.py`, og legg til en gren for `STORAGE_BACKEND=neo4j` i `create_repositories()`.
+**Lagring:** `app/models/repositories/base.py` definerer grensesnittene. `sqlite.py` (SQL) og
+`neo4j.py` (Cypher) implementerer dem, og `create_repositories()` velger etter `STORAGE_BACKEND`.
+`tests/test_repositories.py` kjører de samme kontrakttestene mot begge.

@@ -13,7 +13,7 @@ app/
   models/          # M – domene + ALL datatilgang
     entities.py      domeneklasser, statuser og overganger (ingen lagring)
     repositories/    base.py = abstrakte grensesnitt, sqlite.py = eneste sted med SQL,
-                     __init__.py = fabrikk (bytt til Neo4j her i oblig 5)
+                     neo4j.py = eneste sted med Cypher, __init__.py = fabrikk (STORAGE_BACKEND)
     cart.py          handlekurvregler
     services.py      forretningslogikk på tvers av repositories (bestilling, status, auth)
     images.py        bildelagring + bildegenerering (Claude/plassholder)
@@ -31,12 +31,15 @@ python seed.py
 python run.py          # http://localhost:5050
 python -m pytest -q
 ```
+Neo4j: start Docker-containeren fra README, sett `STORAGE_BACKEND=neo4j` i `.env`, og test med
+`TEST_STORAGE_BACKEND=neo4j python -m pytest -q` (tømmer Neo4j-databasen).
 
 ## Teamets regler
-1. **Lagdeling:** Controllere og maler skal aldri importere `sqlite3` eller `app.models.repositories.sqlite`.
+1. **Lagdeling:** Controllere og maler skal aldri importere `sqlite3`, `neo4j` eller en konkret repository-modul.
    De bruker `repos()` fra `controllers/helpers.py`, som gir de abstrakte grensesnittene.
 2. **Forretningsregler i modellaget** (`entities.py`, `cart.py`, `services.py`) – ikke i controllere eller maler.
-3. **Ny lagringsmetode = metode i `base.py` + implementasjon i `sqlite.py` + test.**
+3. **Ny lagringsmetode = metode i `base.py` + implementasjon i både `sqlite.py` og `neo4j.py` + test i
+   `tests/test_repositories.py`** (kjøres mot begge backendene).
 4. **Planlegg før større features** i plan mode, og commit planen til `docs/plans/NNNN-navn.md`
    før koden.
 5. **Tester:** Ny funksjonalitet skal ha test i `tests/`. `python -m pytest -q` skal være grønn før commit.
