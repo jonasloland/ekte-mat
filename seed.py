@@ -82,7 +82,9 @@ def seed():
     repos.questions.add(Question(None, orders[1].id, ola.id, "Kan vi bytte wraps til glutenfrie?"))
     repos.questions.answer(q1.id, "Hei! Levering kl. 11 går fint. Servise leies ut for 25 kr per kuvert.", admin.id)
 
-    print(f"Seedet {len(dishes)} retter, 3 brukere og {len(orders)} bestillinger i {app.config['DATABASE_PATH']}")
+    where = (app.config["NEO4J_URI"] if app.config["STORAGE_BACKEND"] == "neo4j"
+             else app.config["DATABASE_PATH"])
+    print(f"Seedet {len(dishes)} retter, 3 brukere og {len(orders)} bestillinger i {where}")
     print("Admin:  admin@ektemat.no / admin1234")
     print("Kunder: kari@example.no / kunde1234, ola@example.no / kunde1234")
 

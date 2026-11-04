@@ -1,8 +1,14 @@
+import os
+
 import pytest
 
 from app import create_app
 from app.models.entities import Dish
+from app.models.repositories import reset_storage
 from app.models.services import create_admin, register_customer
+
+# TEST_STORAGE_BACKEND=neo4j kjører hele testsuiten mot Neo4j (tømmer databasen før hver test)
+BACKEND = os.environ.get("TEST_STORAGE_BACKEND", "sqlite")
 
 
 @pytest.fixture
@@ -12,12 +18,15 @@ def app(tmp_path):
         {
             "TESTING": True,
             "TESTING_DISABLE_CSRF": True,
+            "STORAGE_BACKEND": BACKEND,
             "DATABASE_PATH": str(tmp_path / "test.sqlite3"),
             "PENDING_IMAGE_DIR": str(tmp_path / "pending"),
             "ANTHROPIC_API_KEY": None,
             "DAILY_GUEST_CAPACITY": 100,
         }
     )
+    if BACKEND == "neo4j":
+        reset_storage(app.config)
     # Bildelageret skal ikke skrive i det ekte static-katalogen under test
     from app.models.images import ImageGenerator, ImageStore
 
